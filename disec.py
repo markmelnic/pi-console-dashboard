@@ -1,9 +1,6 @@
-from re import T
-import wifisec
-import platform
+import os, wifisec, platform, pyspeedtest
 from rich import print
-import os
-import pyspeedtest
+from rich.table import Table
 
 def display():
     plat = platform.system()
@@ -18,15 +15,21 @@ def display():
         st = pyspeedtest.SpeedTest()
         ping = st.ping()
 
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("IP")
+        table.add_column("MAC")
+        table.add_column("NAME")
+
         clear()
 
         print("[bold cyan]Network stats:[/bold cyan]")
-        print(" "*4, "Ping:", ping)
+        print(" "*4, "Ping: [green]%.2f[/green]ms" % ping)
         #print(" "*4,st.download())
         #print(" "*4,st.upload())
 
         print("\n[bold cyan]Connected devices:[/bold cyan]")
         for d in devices:
+
             ip = d[1].split(".")
             for i, sec in enumerate(ip[1:-1]):
                 ip[i+1] = "#"*len(sec)
@@ -41,4 +44,6 @@ def display():
             if "(" in name:
                 name = name[:name.find("(")]
 
-            print(" "*4, "[green]{}[/green]; [green]{}[/green]; [green]{}[/green]".format(ip, mac, name))
+            table.add_row(ip, mac, name)
+
+        print(table)
