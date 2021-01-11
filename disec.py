@@ -1,9 +1,11 @@
-import os, wifisec, platform, pyspeedtest
+import os, wifisec, platform
+from speedtest import SpeedTest
 from rich import print
 from rich.table import Table
 
 def display():
     plat = platform.system()
+    global clear
     if plat == "Linux":
         clear = lambda: os.system('clear')
     elif plat == "Windows":
@@ -12,8 +14,12 @@ def display():
     while True:
         devices = wifisec.who()
 
-        st = pyspeedtest.SpeedTest()
-        ping = st.ping()
+        try:
+            st = SpeedTest()
+            ping = st.ping()
+            ping = "%.2f" % ping
+        except OSError:
+            ping = "# Connection Error"
 
         table = Table(show_header=True, header_style="bold magenta")
         table.add_column("IP")
@@ -23,7 +29,7 @@ def display():
         clear()
 
         print("[bold cyan]Network stats:[/bold cyan]")
-        print(" "*4, "Ping: [green]%.2f[/green]ms" % ping)
+        print(" "*4, "Ping: [green]%s[/green]ms" % ping)
         #print(" "*4,st.download())
         #print(" "*4,st.upload())
 
@@ -47,3 +53,4 @@ def display():
             table.add_row(ip, mac, name)
 
         print(table)
+        #print("[bold red]No device secured, breach possible.[/bold red]")
